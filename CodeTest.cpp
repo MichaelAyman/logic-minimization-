@@ -2,6 +2,7 @@
 #include <string>
 #include <cctype>
 #include <stack>
+#include <queue>
 
 using namespace std;
 
@@ -9,9 +10,13 @@ stack<char> operators;
 stack<pair<char, bool> > operands;
 
 void RemoveSpaces(string& s) {
+    string temp = "";
     for (int i = 0; i < s.length(); i++) {
-        s.erase(std::remove(s.begin(), s.end(), ' '), s.end());
+        if (s[i] != ' ') {
+            temp += s[i];
+        }
     }
+    s = temp;
 }
 
 bool IsComp (char next) {
@@ -19,7 +24,25 @@ bool IsComp (char next) {
     else { return 0; }
 }
 
-void CopyStack() {}
+void CopyOperators(queue<char> tempOperators) {
+    while (!operators.empty()) {
+        operators.pop();
+    }
+    while (!tempOperators.empty()) {
+        operators.push(tempOperators.front());
+        tempOperators.pop();
+    }
+}
+
+void CopyOperands(queue<pair<char, bool> > tempOperands) {
+    while (!operators.empty()) {
+        operators.pop();
+    }
+    while (!tempOperands.empty()) {
+        operands.push(tempOperands.front());
+        tempOperands.pop();
+    }
+}
 
 bool CheckValidBrackets(string s) {
     stack<char> c;
@@ -46,8 +69,8 @@ bool CheckValidBrackets(string s) {
 
 bool SOP (string s) {
     bool previschar = 1;
-    stack<char> tempOperators;
-    stack<pair<char, bool> > tempOperands;
+    queue<char> tempOperators;
+    queue<pair<char, bool> > tempOperands;
     if (!isalpha(s[0])) { return 0; }
     for (int i = 1; i < s.length(); i++) {
         if (!isalpha(s[i])) {
@@ -67,14 +90,14 @@ bool SOP (string s) {
             }
         }
     }
-    operators = tempOperators;
-    operands = tempOperands;
+    CopyOperands(tempOperands);
+    CopyOperators(tempOperators);
     return 1;
 }
 
 bool POS (string s) {
-    stack<char> tempOperators;
-    stack<pair<char, bool> > tempOperands;
+    queue<char> tempOperators;
+    queue<pair<char, bool> > tempOperands;
     if (!CheckValidBrackets(s)) {
         return 0;
     }
@@ -100,13 +123,15 @@ bool POS (string s) {
             }
         }
     }
+    CopyOperands(tempOperands);
+    CopyOperators(tempOperators);
     return 1;
 }
 
 int main() {
     string s;
     cout << "Enter Expression: " << endl;
-    cin >> s;
+    getline(cin, s);
     RemoveSpaces(s);
-    return 0;
+    cout << s;
 }
