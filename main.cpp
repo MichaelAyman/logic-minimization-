@@ -184,6 +184,37 @@ void decToBinary(int n, int numOfVar, bool arr[])
     for (int j = i - 1; j >= 0; j--) 
             arr[numOfVar-1-j] = binaryNum[j]; 
 } 
+
+string decToBinaryString(int n, int numOfVar) 
+{ 
+    // array to store binary number 
+    int binaryNum[numOfVar]; 
+    int arr[numOfVar];
+    string output = "";
+    // counter for binary array 
+    int i = 0; 
+    while (i < numOfVar) { 
+        // storing remainder in binary array and the rest with 0
+        if ( n <= 0) {
+            binaryNum[i] = 0;
+            i++;
+            continue;
+        }
+        else {
+            binaryNum[i] = n % 2; 
+            n = n / 2; 
+            i++;
+        }
+    } 
+    // return the new array inversed
+    for (int j = i - 1; j >= 0; j--) 
+        arr[numOfVar-1-j] = binaryNum[j]; 
+    for (int i = 0; i < numOfVar; i++)
+        output += to_string(arr[i]);
+    return output; 
+} 
+
+
 void mapVars(int numOfVars, string exp) {  // func that maps every char to a number so we can use it in evaluate a prefix exp 
     int j = 0;
     for (int i =0; i < exp.length(); i++) {
@@ -239,6 +270,21 @@ string ReplaceAll(string str, const string& from, const string& to) {
     return str;
 }
 
+bool isAdjacent(string a,string b)
+{
+   int flag=0;
+   for(int i=0;i<a.length();i++)
+   {
+       if(a[i]!=b[i])
+        flag++;
+   }
+   if (flag == 1) 
+    return true; 
+   else 
+    return false;
+}
+// could be better implemented btw
+
 
 
 int main() {
@@ -246,19 +292,15 @@ int main() {
     // cout << "Enter Expression: " << endl;
     // cin >> s;
     //RemoveSpaces(s); // there's an error in RemoveSpaces line 13
-   int numOfVar = 4; // number of variables 
+   int numOfVar = 3; // number of variables 
 
     // above this line is all the checkers and the endproduct of them is a string in a prefix form  
-    string prefixTest = "+*c'e'+md"; // there's a problem in bar and a problem in displaying sop the plus in the end
+    string prefixTest = "+*abc"; // there's a problem in bar and a problem in displaying sop the plus in the end
     string tempPrefix = prefixTest; 
     mapVars(numOfVar, prefixTest); // map vars to their places in the tt 
-    
-
     bool arrOfBinary[numOfVar];
-    
-    
-
     vector<vector<bool>> tt; // now we make a vector of vectors to put in the truth table 
+    vector<string> minterms;
     // Inserting elements into vector 
     for (int i = 0; i < pow(2, numOfVar); i++) { 
         vector<bool> v1;   
@@ -314,8 +356,16 @@ int main() {
                 pos +=')';
         }
     }
-    cout << ReplaceAll(pos, string("+)"), string(")"));
-
+    cout << ReplaceAll(pos, string("+)"), string(")")); // Modify the POS string to remove the extra + 
+    cout << endl << "Minterms:" << endl;
+    for (int i =0; i< pow(2, numOfVar); i++) {
+        if (tt[i][numOfVar] == 1) {
+            minterms.push_back(decToBinaryString(i,numOfVar));
+        }
+    }
+    for (int i = 0; i < minterms.size(); i++){
+        cout << minterms[i] << endl;
+    }
     return 0; 
 
 }
