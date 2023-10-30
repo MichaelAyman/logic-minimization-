@@ -1,11 +1,12 @@
 #include <iostream>
-#include <string>
+#include <cstring>
 #include <cctype>
 #include <stack>
 #include <vector> 
 #include <cmath>
 #include <map>
 #include <sstream>
+#include <algorithm>
 
 using namespace std;
 
@@ -114,6 +115,8 @@ bool isOperator(char c)
         return true; 
     else if ( c == '+') 
         return true;
+    else if ( c == '\'')
+        return true; 
     else
         return false; 
 }
@@ -123,9 +126,14 @@ bool evaluatePrefix(string exprsn)
  
     for (int i = exprsn.size() - 1; i >= 0; i--) {
  
-        if (!isOperator(exprsn[i]))
+        if (!isOperator(exprsn[i])) {
+            if (exprsn[i+1]== '\'')
+                continue;
             PrefixCalc.push(exprsn[i] - '0'); // push the value of zero or 1 not the char value
- 
+        }
+        else if (exprsn[i]== '\''){  
+            PrefixCalc.push(1-(exprsn[i-1] - '0')); // recieve the next char inverted 
+        }
         else {
  
             // Operator encountered
@@ -134,7 +142,7 @@ bool evaluatePrefix(string exprsn)
             PrefixCalc.pop();
             bool o2 = PrefixCalc.top();
             PrefixCalc.pop();
- 
+
             // calc the value
 
             switch (exprsn[i]) {
@@ -179,7 +187,7 @@ void decToBinary(int n, int numOfVar, bool arr[])
 void mapVars(int numOfVars, string exp) {  // func that maps every char to a number so we can use it in evaluate a prefix exp 
     int j = 0;
     for (int i =0; i < exp.length(); i++) {
-        if (exp[i] == '+' || exp[i] == '*') {
+        if (exp[i] == '+' || exp[i] == '*' || exp[i] == '\'') {
                 map1[exp[i]] = 99;
             }
         else {
@@ -191,6 +199,48 @@ void mapVars(int numOfVars, string exp) {  // func that maps every char to a num
     }
 }
 
+string printKey(map<char, int>& Map,
+              int K)
+{
+ 
+    // If a is true, then we have
+    // not key-value mapped to K
+    bool a = true;
+    string c;
+ 
+    // Traverse the map
+    for (auto& it : Map) {
+ 
+        // If mapped value is K,
+        // then print the key value
+        if (it.second == K) {
+            c = it.first; 
+            a = false;
+//            cout<< it.first;
+//            a = false;
+        }
+    }
+ 
+    // If there is not key mapped with K,
+    // then print -1
+    if (a) {
+        cout << "-1";
+    }
+    return c;
+}
+
+
+string ReplaceAll(string str, const string& from, const string& to) {
+    size_t start_pos = 0;
+    while((start_pos = str.find(from, start_pos)) != std::string::npos) {
+        str.replace(start_pos, from.length(), to);
+        start_pos += to.length(); // Handles case where 'to' is a substring of 'from'
+    }
+    return str;
+}
+
+
+
 int main() {
     string s;
     // cout << "Enter Expression: " << endl;
@@ -199,7 +249,7 @@ int main() {
    int numOfVar = 4; // number of variables 
 
     // above this line is all the checkers and the endproduct of them is a string in a prefix form  
-    string prefixTest = "+++abcd";
+    string prefixTest = "+*c'e'+md"; // there's a problem in bar and a problem in displaying sop the plus in the end
     string tempPrefix = prefixTest; 
     mapVars(numOfVar, prefixTest); // map vars to their places in the tt 
     
@@ -232,14 +282,40 @@ int main() {
         cout << endl; 
     } 
 
-    
 
-        //cout << evaluatePrefix(prefixTest); 
-          /* //testing the binary conversion func 
-    for (int i = 0; i < numOfVar; i++) {
-        cout << arrOfBinary[i]; 
+    string sop1 = "";
+    for (int i =0; i< pow(2, numOfVar); i++) {
+        if (tt[i][numOfVar] == 1) {
+            for (int j = 0; j < numOfVar ; j++) {
+                if (tt[i][j] == 1) {
+                   sop1 += printKey (map1, j);
+                }
+                else 
+                   sop1 += printKey (map1, j) + "\'";
+            } 
+                sop1 += " +";
+        }
     }
-    */
+    for (int i=0; i < sop1.length()-2; i++)
+        cout << sop1[i];
+
+    cout << endl;
+    string pos = "";
+    for (int i =0; i< pow(2, numOfVar); i++) {
+        if (tt[i][numOfVar] == 0) {
+            pos += '(';
+            for (int j = 0; j < numOfVar ; j++) {
+                if (tt[i][j] == 1) {
+                   pos += printKey (map1, j) + "\'"+ '+';
+                }
+                else 
+                   pos += printKey (map1, j) + '+';
+            } 
+                pos +=')';
+        }
+    }
+    cout << ReplaceAll(pos, string("+)"), string(")"));
+
     return 0; 
 
 }

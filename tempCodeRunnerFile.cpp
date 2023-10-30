@@ -1,1 +1,1 @@
-cout << tempPrefix[j]; 
+            cout<< it.first;
