@@ -13,7 +13,7 @@ using namespace std;
 stack<char> operators;
 stack<pair<char, bool> > operands;
 map<char, int>map1;
-map<string, bool> markMap;
+
 
 
 /*void RemoveSpaces(string& s) {
@@ -215,6 +215,23 @@ string decToBinaryString(int n, int numOfVar)
     return output; 
 } 
 
+int binToDec (string s) {
+    int decimalValue = 0;
+    int powerOfTwo = 1; // Initialize with 2^0
+
+    // Start from the rightmost (least significant) bit and move left
+    for (int i = s.size() - 1; i >= 0; i--) {
+        if (s[i] == '1') {
+            decimalValue += powerOfTwo;
+        }
+        powerOfTwo *= 2; // Double the power for the next bit position
+    }
+
+    // Ensure that the number of bits matches the specified number
+
+    return decimalValue;
+}
+
 
 void mapVars(int numOfVars, string exp) {  // func that maps every char to a number so we can use it in evaluate a prefix exp 
     int j = 0;
@@ -344,28 +361,30 @@ void printMintermGroups(const map<int, vector<string>>& mintermGroups) {
 bool alreadyExists(vector<string> v, string s) {
     return find(v.begin(), v.end(),s)!=v.end();
 }
-void mark(string s) { 
+void mark(string s, map<string, bool>& markedMap) { 
     // If a is true, then we have
     // not key-value mapped to K
-    bool a = true;
-    string c;
- 
     // Traverse the map
-    for (auto& it : markMap) {
-
+    for (auto& it : markedMap) {
         if (it.second == 0) {
             it.second = 1;
-//            cout<< it.first;
-//            a = false;
         }
     }
 }
 
-void reduce(map<int, vector<string>>& mintermGroups) {
+void reduce(map<int, vector<string>>& mintermGroups, map<string, bool>& markedMap, map<string, string>& pi ) {
     // Base case: If there is only one group, no further reduction is possible
-    if (mintermGroups.empty()) {
+    if (mintermGroups.empty())
         return;
-    }
+
+        for (auto it = mintermGroups.begin(); it != mintermGroups.end(); it++)
+            for (int i = 0; i < it->second.size(); i++) {
+                cout << it->first << "	 " << it->second[i]<<  endl;
+                markedMap.insert({it->second[i], 0});
+            }
+    string s1 = ""; 
+    string s2 = "";
+    
     map<int, vector<string>> nextGroup;
     vector<string> vtemp;
 
@@ -376,8 +395,22 @@ void reduce(map<int, vector<string>>& mintermGroups) {
         for (const string& minterm1 : group1) {
             for (const string& minterm2 : group2) {
                 if (isAdjacent(minterm1, minterm2)) {
-                    if (!alreadyExists(vtemp,repDontcare(minterm1, minterm2)))
+                    for (auto it = markedMap.begin(); it != markedMap.end(); it++) { // mark the minterms 
+                        if (it->first == minterm1) 
+                            it->second = 1; 
+                        if (it->first == minterm2)
+                            it->second = 1;
+                    }
+                    if (!alreadyExists(vtemp,repDontcare(minterm1, minterm2))) {
                         vtemp.push_back(repDontcare(minterm1, minterm2));
+                        for (auto it = pi.begin(); it != pi.end(); it++){
+                            if (it -> first == minterm1)
+                                s1 = it -> second;
+                            if (it ->first == minterm2) 
+                                s2 = it -> second;  
+                        }
+                            pi.insert({repDontcare(minterm1, minterm2), s1 + "-" + s2});
+                    }
                 }
             }
         }
@@ -392,7 +425,7 @@ void reduce(map<int, vector<string>>& mintermGroups) {
     printMintermGroups(mintermGroups);
 
     // Recursively reduce the next group
-    reduce(nextGroup);
+    reduce(nextGroup, markedMap, pi);
 }
 
 
@@ -404,7 +437,8 @@ int main() {
     // cin >> s;
     //RemoveSpaces(s); // there's an error in RemoveSpaces line 13
    int numOfVar = 4; // number of variables 
-
+    map<string, bool> markedMap;
+    map<string, string> pi;
     // above this line is all the checkers and the endproduct of them is a string in a prefix form  
     string prefixTest = "+++a*bc*ca*da"; // there's a problem in bar and a problem in displaying sop the plus in the end
     string tempPrefix = prefixTest; 
@@ -486,9 +520,28 @@ int main() {
 
 
 
-
+    for (int i = 0; i < minterms.size(); i++){
+            pi.insert({minterms[i],to_string(binToDec(minterms[i]))});
+    }
     map<int, vector<string>> mintermGroups = groupMintermsByOnes(minterms); // Map from int to vector of strings to map all the binaries to their number of ones 
-    reduce(mintermGroups);
+    reduce(mintermGroups, markedMap, pi);
+
+    
+    for (auto it = markedMap.begin(); it != markedMap.end(); it++){
+                cout << it->first << " " ;
+                cout << it->second << endl;
+    }
+    for (auto it = pi.begin(); it != pi.end(); it++){
+                cout << it->first << " " ;
+                cout << it->second << endl;
+    }
+    cout << endl << "PI's are: " << endl; 
+        for (auto it = markedMap.begin(); it != markedMap.end(); it++){
+            if (it->second == 0) 
+                for (auto it2 = pi.begin(); it2 != pi.end(); it2++)
+                    if (it -> first == it2 -> first)
+                        cout << it2-> second << " (" << it2 -> first<< ")"<< endl; 
+    }
 
     return 0; 
 
