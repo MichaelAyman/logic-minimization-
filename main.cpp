@@ -140,7 +140,11 @@ bool POS (string& s) {
             else { return 0; }
         }
         else {
-            s2 += s.substr(i, 1);
+            if (isalpha(s[i - 1]) || s[i - 1] == '\'') {
+                s2 += '*' + s.substr(i, 1);
+            }
+            else{
+            s2 += s.substr(i, 1);}
         }
     }
     s = s2;
@@ -492,6 +496,145 @@ void reduce(map<int, vector<string>>& mintermGroups, map<string, bool>& markedMa
 
 
 
+vector<string> srtingtominterms(string s1);
+
+map<string, vector<string>> EPI(vector<string> minterms, map<string, bool> markedMap, map<string, string> pi)
+{
+    map<string, vector<string>> EPI;
+
+    for (int j = 0; j < minterms.size(); j++)
+    {
+        string tempmin = to_string(binToDec(minterms[j]));
+        vector<string> vtemp;
+        string tempEPI;
+        vector<string> PItemp;
+        bool flag = true;
+        for (auto it = markedMap.begin(); it != markedMap.end(); it++) {
+            if (it->second == 0)
+                for (auto it2 = pi.begin(); it2 != pi.end(); it2++)
+                    if (it->first == it2->first)
+                    {
+                        PItemp = {};
+                        vector<string> minterms = srtingtominterms(it2->second);
+                        for (int i = 0; i < minterms.size(); i++)
+                        {
+
+                                PItemp.push_back(minterms[i]);
+                                if (!alreadyExists(vtemp, minterms[i]) && tempmin == minterms[i])
+                                {
+                                    vtemp.push_back(minterms[i]);
+                                    tempEPI = it2->first;
+
+                                }
+                                else
+                                    flag = false;
+
+
+                        }
+
+
+                    }
+
+        }
+
+        if (flag)
+            EPI.insert({ tempEPI,PItemp });
+    }
+
+    return EPI;
+
+}
+vector<string> NotfoundMT(map<string, vector<string>> EPI, vector<string> minterms)
+{
+    vector<string> NotfoundMT;
+
+    for (int j = 0; j < minterms.size(); j++)
+    {
+        bool flag = true;
+        string tempmin = to_string(binToDec(minterms[j]));
+        for (auto it = EPI.begin(); it != EPI.end(); it++)
+        {
+            vector<string> PI = it->second;
+            for (int i = 0; i < PI.size(); i++)
+                if (PI[i] == tempmin)
+                    flag = false;
+
+        }
+        if (flag)
+            NotfoundMT.push_back(tempmin);
+    }
+    return NotfoundMT;
+}
+vector<string> srtingtominterms(string s1)
+{
+    vector<string> minterms;
+    string s2 = "";
+    for (int i = 0; i < s1.length(); i++)
+    {
+        if (s1[i] != '-' || i != s1.length()-1)
+        {
+            s2 += s1[i];
+        }
+        else
+        {
+            minterms.push_back(s2);
+            string s2 = "";
+        }
+
+    }
+    return minterms;
+
+}
+void miniexpress(vector<string> NotfoundMT, map<string, bool> markedMap, map<string, vector<string>> EPI, vector<string> minterms, map<string, string> pi)
+{
+    vector<string>dominatedRow;
+    vector<string>dominatingCol;
+    map<string, vector<string>> PITb;
+    vector<string > EPITemp;
+    vector<string > PITbTemp;
+
+    for (auto& x : EPI)
+    {
+        EPITemp.push_back(x.first);
+    }
+    for (auto it = markedMap.begin(); it != markedMap.end(); it++) 
+    {
+        if (it->second == 0)
+            for (auto it2 = pi.begin(); it2 != pi.end(); it2++)
+            {
+                if (it->first == it2->first && !alreadyExists(EPITemp, it2->first))
+                {
+                    string PITEMP = it2->first;
+                    for (auto& x : PITb)
+                    {
+                        PITbTemp.push_back(x.first);
+                    }
+                    if (!alreadyExists(PITbTemp, PITEMP))
+                        PITb.insert({ PITEMP, srtingtominterms(pi[PITEMP]) });                 
+
+               }
+            }
+    }
+    for (auto& x : PITb)
+    {
+        PITbTemp.push_back(x.first);
+    }
+    for (int j = 0; j < PITbTemp.size(); j++)
+    {
+        for (int l = j + 1; l < PITbTemp.size() - 1; l++)
+        {
+            vector<string>first = PITb[PITbTemp[j]];
+            vector<string>second = PITb[PITbTemp[l]];
+            sort(first.begin(), first.end());
+            sort(second.begin(), second.end());
+            if (includes(first.begin(), first.end(), second.begin(), second.end()))
+                dominatedRow.push_back(PITbTemp[l]);
+            else if (includes(second.begin(), second.end(), first.begin(), first.end()))
+                dominatedRow.push_back(PITbTemp[j]);
+
+        }
+    }
+}
 
 int main() {
 
@@ -501,6 +644,7 @@ int main() {
     getline(cin, s1);
     RemoveSpaces(s1);
     string prefix = "";
+
     if (SOP(s1) || POS(s1)) {
         prefix = infixToPrefix(s1);
         cout << prefix << endl;
@@ -616,6 +760,9 @@ int main() {
                     if (it -> first == it2 -> first)
                         cout << it2-> second << " (" << it2 -> first<< ")"<< endl; 
     }
+
+
+
 
     return 0; 
 
