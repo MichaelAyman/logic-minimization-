@@ -474,9 +474,9 @@ map<string, vector<string>> EPI(vector<string> minterms, map<string, bool> marke
     return EPI;
 
 }
-vector<string> NotfoundPI(map<string, vector<string>> EPI, vector<string> minterms)
+vector<string> NotfoundMT(map<string, vector<string>> EPI, vector<string> minterms)
 {
-    vector<string> NotfoundPI;
+    vector<string> NotfoundMT;
 
     for (int j = 0; j < size(minterms); j++)
     {
@@ -491,9 +491,9 @@ vector<string> NotfoundPI(map<string, vector<string>> EPI, vector<string> minter
 
         }
         if (flag)
-            NotfoundPI.push_back(tempmin);
+            NotfoundMT.push_back(tempmin);
     }
-    return NotfoundPI;
+    return NotfoundMT;
 }
 vector<string> srtingtominterms(string s1)
 {
@@ -515,9 +515,86 @@ vector<string> srtingtominterms(string s1)
     return minterms;
 
 }
+void miniexpress(vector<string> NotfoundMT, map<string, bool> markedMap, map<string, vector<string>> EPI, vector<string> minterms, map<string, string> pi)
+{
+    vector<string>dominatedRow;
+    vector<string>dominatingCol;
+    map<string, vector<string>> PITb;
+    vector<string > EPITemp;
+    vector<string > PITbTemp;
+
+    for (auto& x : EPI)
+    {
+        EPITemp.push_back(x.first);
+    }
+    for (auto it = markedMap.begin(); it != markedMap.end(); it++) 
+    {
+        if (it->second == 0)
+            for (auto it2 = pi.begin(); it2 != pi.end(); it2++)
+            {
+                if (it->first == it2->first && !alreadyExists(EPITemp, it2->first))
+                {
+                    string PITEMP = it2->first;
+                    for (auto& x : PITb)
+                    {
+                        PITbTemp.push_back(x.first);
+                    }
+                    if (!alreadyExists(PITbTemp, PITEMP))
+                        PITb.insert({ PITEMP, srtingtominterms(pi[PITEMP]) });                 
+
+               }
+            }
+    }
+    for (auto& x : PITb)
+    {
+        PITbTemp.push_back(x.first);
+    }
+    for (int j = 0; j < size(PITbTemp); j++)
+    {
+        for (int l = j + 1; l < size(PITbTemp) - 1; l++)
+        {
+            vector<string>first = PITb[PITbTemp[j]];
+            vector<string>second = PITb[PITbTemp[l]];
+            sort(first.begin(), first.end());
+            sort(second.begin(), second.end());
+            if (includes(first.begin(), first.end(), second.begin(), second.end()))
+                dominatedRow.push_back(PITbTemp[l]);
+            else if (includes(second.begin(), second.end(), first.begin(), first.end()))
+                dominatedRow.push_back(PITbTemp[j]);
+
+        }
+    }
+ /*   map<string, vector<string>> columns;
+    vector<string > temp2;
+
+    for (int n = 0; n < size(PITbTemp); n++)
+    {
+
+        vector<string > temp = NotfoundPITab[PITbTemp[n]];
+        for (auto& x : columns)
+        {
+            temp2.push_back(x->first);
+        }
+        for (int m = 0; m < size(temp); m++)
+        {
+
+            if (!alreadyExists(temp2, temp[m]))
+                columns.insert(temp[m], PITbTemp[n]);
+            else
+                columns[temp[m]].push_back(PITbTemp[n]);
+        }
+}*/
 
 
-}
+
+ 
+    
+    
+        
+            
+
+
+
 int main() {
     string s;
     // cout << "Enter Expression: " << endl;
