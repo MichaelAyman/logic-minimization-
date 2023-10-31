@@ -13,6 +13,7 @@ using namespace std;
 stack<char> operators;
 stack<pair<char, bool> > operands;
 map<char, int>map1;
+map<string, bool> markMap;
 
 
 /*void RemoveSpaces(string& s) {
@@ -283,7 +284,117 @@ bool isAdjacent(string a,string b)
    else 
     return false;
 }
-// could be better implemented btw
+
+string repDontcare(string a,string b)
+{
+   string temp="";
+   for(int i=0;i<a.length();i++)
+        if(a[i]!=b[i])
+            temp += "-";
+        else
+            temp += a[i];
+
+   return temp;
+}
+
+int countNum1 (string x) {
+    int counter = 0;
+    for (int i = 0; i< x.length(); i++) 
+        if (x[i]== '1')
+            counter++;
+    return counter;
+}
+
+
+vector <string> vsort (vector<string> vec) {
+    for (int i = 0; i < vec.size() - 1; i++) {
+        for (int j = 0; j < vec.size() - i - 1; j++)
+            if (countNum1(vec[j]) >countNum1(vec[j+1])) {
+                string temp = vec[j]; 
+                vec[j] = vec[j+1]; 
+                vec[j+1] = temp;
+            }
+    }
+    return vec;
+}
+
+void printv (vector<string> vec) {
+    for (int i =0; i < vec.size(); i++) {
+        cout << vec[i] << endl;
+    }
+}
+
+
+map<int, vector<string>> groupMintermsByOnes(const vector<string>& minterms) { // group Minterms by ones 
+    map<int, vector<string>> mintermGroups;
+    for (const string& minterm : minterms) 
+        mintermGroups[countNum1(minterm)].push_back(minterm);
+    return mintermGroups;
+}
+
+void printMintermGroups(const map<int, vector<string>>& mintermGroups) {
+    for (const auto& group : mintermGroups) {
+        cout << "----------------------" << endl;
+        for (const string& minterm : group.second) {
+            cout << minterm << " ";
+        }
+        cout << endl;
+    }
+}
+bool alreadyExists(vector<string> v, string s) {
+    return find(v.begin(), v.end(),s)!=v.end();
+}
+void mark(string s) { 
+    // If a is true, then we have
+    // not key-value mapped to K
+    bool a = true;
+    string c;
+ 
+    // Traverse the map
+    for (auto& it : markMap) {
+
+        if (it.second == 0) {
+            it.second = 1;
+//            cout<< it.first;
+//            a = false;
+        }
+    }
+}
+
+void reduce(map<int, vector<string>>& mintermGroups) {
+    // Base case: If there is only one group, no further reduction is possible
+    if (mintermGroups.empty()) {
+        return;
+    }
+    map<int, vector<string>> nextGroup;
+    vector<string> vtemp;
+
+    for (int i = 0; i < mintermGroups.size() - 1; i++) {
+        auto& group1 = mintermGroups[i];
+        auto& group2 = mintermGroups[i + 1];
+
+        for (const string& minterm1 : group1) {
+            for (const string& minterm2 : group2) {
+                if (isAdjacent(minterm1, minterm2)) {
+                    if (!alreadyExists(vtemp,repDontcare(minterm1, minterm2)))
+                        vtemp.push_back(repDontcare(minterm1, minterm2));
+                }
+            }
+        }
+
+        map<int, vector<string>> mtemp = groupMintermsByOnes(vtemp);
+        nextGroup.insert(mtemp.begin(), mtemp.end());
+        vtemp.clear();
+    }
+
+    // Print the current state of the groups
+
+    printMintermGroups(mintermGroups);
+
+    // Recursively reduce the next group
+    reduce(nextGroup);
+}
+
 
 
 
@@ -292,10 +403,10 @@ int main() {
     // cout << "Enter Expression: " << endl;
     // cin >> s;
     //RemoveSpaces(s); // there's an error in RemoveSpaces line 13
-   int numOfVar = 3; // number of variables 
+   int numOfVar = 4; // number of variables 
 
     // above this line is all the checkers and the endproduct of them is a string in a prefix form  
-    string prefixTest = "+*abc"; // there's a problem in bar and a problem in displaying sop the plus in the end
+    string prefixTest = "+++a*bc*ca*da"; // there's a problem in bar and a problem in displaying sop the plus in the end
     string tempPrefix = prefixTest; 
     mapVars(numOfVar, prefixTest); // map vars to their places in the tt 
     bool arrOfBinary[numOfVar];
@@ -326,6 +437,7 @@ int main() {
 
 
     string sop1 = "";
+    cout << "SOP: "; 
     for (int i =0; i< pow(2, numOfVar); i++) {
         if (tt[i][numOfVar] == 1) {
             for (int j = 0; j < numOfVar ; j++) {
@@ -356,7 +468,7 @@ int main() {
                 pos +=')';
         }
     }
-    cout << ReplaceAll(pos, string("+)"), string(")")); // Modify the POS string to remove the extra + 
+    cout <<"POS: "<< ReplaceAll(pos, string("+)"), string(")")); // Modify the POS string to remove the extra + 
     cout << endl << "Minterms:" << endl;
     for (int i =0; i< pow(2, numOfVar); i++) {
         if (tt[i][numOfVar] == 1) {
@@ -366,6 +478,18 @@ int main() {
     for (int i = 0; i < minterms.size(); i++){
         cout << minterms[i] << endl;
     }
+
+    /*vector<string> sortedMinterms; 
+    sortedMinterms = vsort(minterms);
+    cout << "Sorted Minterms: " << endl;
+    printv(sortedMinterms); */
+
+
+
+
+    map<int, vector<string>> mintermGroups = groupMintermsByOnes(minterms); // Map from int to vector of strings to map all the binaries to their number of ones 
+    reduce(mintermGroups);
+
     return 0; 
 
 }
