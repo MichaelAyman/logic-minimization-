@@ -494,11 +494,11 @@ void reduce(map<int, vector<string>>& mintermGroups, map<string, bool>& markedMa
 
 vector<string> srtingtominterms(string s1);
 
-map<string, vector<string>> EPI(vector<string> minterms, map<string, bool> markedMap, map<string, string> pi)
+map<string, vector<string>> EPI(vector<string> minterms, map<string, bool> markedMap, map<string, string> pi) //finds EPIs
 {
     map<string, vector<string>> EPI;
 
-    for (int j = 0; j < minterms.size(); j++)
+    for (int j = 0; j < minterms.size(); j++)  //traversing all minterms to find the minterm that exsists only once.
     {
         string tempmin = to_string(binToDec(minterms[j]));
         vector<string> vtemp;
@@ -508,7 +508,7 @@ map<string, vector<string>> EPI(vector<string> minterms, map<string, bool> marke
         for (auto it = markedMap.begin(); it != markedMap.end(); it++) {
             if (it->second == 0)
                 for (auto it2 = pi.begin(); it2 != pi.end(); it2++)
-                    if (it->first == it2->first)
+                    if (it->first == it2->first)                          //traversing all the prime implicants to find the essential prime implicant
                     {
                         vector<string> minterms = srtingtominterms(it2->second);
                         for (int i = 0; i < minterms.size(); i++)
@@ -517,7 +517,7 @@ map<string, vector<string>> EPI(vector<string> minterms, map<string, bool> marke
                             PItemp.push_back(minterms[i]);
                             if (!alreadyExists(vtemp, minterms[i]) && tempmin == minterms[i])
                             {
-                                vtemp.push_back(minterms[i]);
+                                vtemp.push_back(minterms[i]);          // storing the minterms that exsist in this prime implicant
                                 tempEPI = it2->first;
 
                             }
@@ -563,7 +563,7 @@ vector<string> NotfoundMT(const map<string, vector<string>>& EPI, const vector<s
 }
 
 
-vector<string> srtingtominterms(string s1)
+vector<string> srtingtominterms(string s1) // removes the dashes and put minterms in vector
 {
     vector<string> minterms;
     string s2 = "";
@@ -593,7 +593,7 @@ vector<string> miniexpress(vector<string> NotfoundMT, map<string, bool> markedMa
 {
     vector<string>dominatedRow;
     vector<string>dominatingCol;
-    map<string, vector<string>> PITb;
+    map<string, vector<string>> PITb;  //prime implicants table
     vector<string > EPITemp;
     vector<string > PITbTemp;
 
@@ -631,7 +631,7 @@ vector<string> miniexpress(vector<string> NotfoundMT, map<string, bool> markedMa
             vector<string>second = PITb[PITbTemp[l]];
             sort(first.begin(), first.end());
             sort(second.begin(), second.end());
-            if (includes(first.begin(), first.end(), second.begin(), second.end()))
+            if (includes(first.begin(), first.end(), second.begin(), second.end())) //checking if row is subset of the other
                 dominatedRow.push_back(PITbTemp[l]);
             else if (includes(second.begin(), second.end(), first.begin(), first.end()))
                 dominatedRow.push_back(PITbTemp[j]);
@@ -654,7 +654,7 @@ vector<string> miniexpress(vector<string> NotfoundMT, map<string, bool> markedMa
             vector<string>second = columns[NotfoundMT[s]];
             sort(first.begin(), first.end());
             sort(second.begin(), second.end());
-            if (includes(first.begin(), first.end(), second.begin(), second.end()))
+            if (includes(first.begin(), first.end(), second.begin(), second.end())) //checking if column is superset of the other
                 dominatingCol.push_back(NotfoundMT[r]);
             else if (includes(second.begin(), second.end(), first.begin(), first.end()))
                 dominatingCol.push_back(NotfoundMT[s]);
@@ -674,7 +674,7 @@ vector<string> miniexpress(vector<string> NotfoundMT, map<string, bool> markedMa
                 PITb[PITbTemp[d]].erase(find(PITb[PITbTemp[d]].begin(), PITb[PITbTemp[d]].end(), dominatingCol[f]));
         }
     }
-    vector<pair<string, vector<string>>> sorted;
+    vector<pair<string, vector<string>>> sorted;              //sort the rest og prime implicants
     for (auto itr = PITb.begin(); itr != PITb.end(); ++itr)
         sorted.push_back(*itr);
 
@@ -702,7 +702,7 @@ vector<string> miniexpress(vector<string> NotfoundMT, map<string, bool> markedMa
             if (!included[PITb[sortedvector[c]][d]])
             {
                 flag = true;
-                included[PITb[sortedvector[c]][d]] = true;
+                included[PITb[sortedvector[c]][d]] = true;                  //inculde PIs untll all minterms are covered
             }
         }
         if (flag)
@@ -711,7 +711,7 @@ vector<string> miniexpress(vector<string> NotfoundMT, map<string, bool> markedMa
     }
     for (int t = 0; t < EPITemp.size(); t++)
     {
-        PIsolution.push_back(EPITemp[t]);
+        PIsolution.push_back(EPITemp[t]);                    // include essential prime implicants
     }
     return PIsolution;
 
