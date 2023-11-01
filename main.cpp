@@ -536,6 +536,7 @@ map<string, vector<string>> EPI(vector<string> minterms, map<string, bool> marke
                                 PItemp = {};
                             }
 
+
                         }
 
 
@@ -566,6 +567,7 @@ vector<string> NotfoundMT(map<string, vector<string>> EPI, vector<string> minter
                 {
                     flag = false;
                 }
+
         }
         if (flag)
             NotfoundMT.push_back(tempmin);
@@ -586,19 +588,18 @@ vector<string> srtingtominterms(string s1)
         {
             s2 += s1[i];
             minterms.push_back(s2);
-             s2 = "";
+            s2 = "";
         }
         else
         {
             minterms.push_back(s2);
-             s2 = "";
+            s2 = "";
         }
 
     }
     return minterms;
 
 }
-
 vector<string> miniexpress(vector<string> NotfoundMT, map<string, bool> markedMap, map<string, vector<string>> EPI, vector<string> minterms, map<string, string> pi)
 {
     vector<string>dominatedRow;
@@ -611,7 +612,6 @@ vector<string> miniexpress(vector<string> NotfoundMT, map<string, bool> markedMa
     {
         EPITemp.push_back(x.first);
     }
-
     for (auto it = markedMap.begin(); it != markedMap.end(); it++)
     {
         if (it->second == 0)
@@ -625,7 +625,6 @@ vector<string> miniexpress(vector<string> NotfoundMT, map<string, bool> markedMa
                         PITbTemp.push_back(x.first);
                     }
                     if (!alreadyExists(PITbTemp, PITEMP))
-
                         PITb.insert({ PITEMP, srtingtominterms(pi[PITEMP]) });
 
                 }
@@ -650,6 +649,83 @@ vector<string> miniexpress(vector<string> NotfoundMT, map<string, bool> markedMa
 
         }
     }
+    map<string, vector<string>> columns;
+    for (int n = 0; n < size(NotfoundMT); n++)
+    {
+        columns.insert({ NotfoundMT[n], vector<string>() });
+        for (int j = 0; j < size(PITbTemp); j++)
+            if (alreadyExists(PITb[PITbTemp[j]], NotfoundMT[n]))
+                columns[NotfoundMT[n]].push_back(PITbTemp[j]);
+    }
+    for (int r = 0; r < size(NotfoundMT); r++)
+    {
+        for (int s = r + 1; s < size(NotfoundMT) - 1; s++)
+        {
+            vector<string>first = columns[NotfoundMT[r]];
+            vector<string>second = columns[NotfoundMT[s]];
+            sort(first.begin(), first.end());
+            sort(second.begin(), second.end());
+            if (includes(first.begin(), first.end(), second.begin(), second.end()))
+                dominatingCol.push_back(NotfoundMT[r]);
+            else if (includes(second.begin(), second.end(), first.begin(), first.end()))
+                dominatingCol.push_back(NotfoundMT[s]);
+
+        }
+    }
+    for (int k = 0; k < size(dominatedRow); k++)
+    {
+        PITb.erase(dominatedRow[k]);
+
+    }
+    for (int d = 0; d < size(PITbTemp); d++)
+    {
+        for (int f = 0; f < size(dominatingCol); f++)
+        {
+            if (find(PITb[PITbTemp[d]].begin(), PITb[PITbTemp[d]].end(), dominatingCol[f]) != PITb[PITbTemp[d]].end())
+                PITb[PITbTemp[d]].erase(find(PITb[PITbTemp[d]].begin(), PITb[PITbTemp[d]].end(), dominatingCol[f]));
+        }
+    }
+    vector<pair<string, vector<string>>> sorted;
+    for (auto itr = PITb.begin(); itr != PITb.end(); ++itr)
+        sorted.push_back(*itr);
+
+    sort(sorted.begin(), sorted.end(), [=](pair<string, vector<string>>& a, pair<string, vector<string>>& b)
+        {
+            return a.second.size() > b.second.size();
+        }
+    );
+    map<string, bool> included;
+    for (int a = 0; a < size(minterms); a++)
+    {
+        included.insert({ minterms[a], false });
+    }
+    vector<string> sortedvector;
+    for (auto& x : sorted)
+    {
+        sortedvector.push_back(x.first);
+    }
+    vector<string> PIsolution;
+    for (int c = 0; c < size(sortedvector); c++)
+    {
+        bool flag = false;
+        for (int d = 0; d < size(PITb[sortedvector[c]]); d++)
+        {
+            if (!included[PITb[sortedvector[c]][d]])
+            {
+                flag = true;
+                included[PITb[sortedvector[c]][d]] = true;
+            }
+        }
+        if (flag)
+            PIsolution.push_back(sortedvector[c]);
+
+    }
+    for (int t = 0; t < size(EPITemp); t++)
+    {
+        PIsolution.push_back(EPITemp[t]);
+    }
+    return PIsolution;
+
 }
 
 int main() {
