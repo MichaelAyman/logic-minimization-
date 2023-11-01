@@ -6,15 +6,13 @@
 #include <vector> 
 #include <cmath>
 #include <map>
+#include <fstream>
 #include <sstream>
 #include <algorithm>
 #include <set>
 
 
 using namespace std;
-
-stack<char> operators;
-stack<pair<char, bool> > operands;
 map<char, int>map1;
 
 
@@ -85,7 +83,6 @@ string infixToPrefix(string s)
         reverse(prefix.begin(), prefix.end());
 
         return prefix;
-
 }
 
 void RemoveSpaces(string& s) {
@@ -99,7 +96,6 @@ void RemoveSpaces(string& s) {
 }
 
 bool IsComp (char next) {  
-
     if (next == '\'') { return 1; }
     else { return 0; }
 }
@@ -127,7 +123,6 @@ bool CheckValidBrackets(string s) {
     return 1;
 }
 
-
 bool POS (string& s) {
     string s2 = "";
     if (!CheckValidBrackets(s)) {
@@ -138,8 +133,8 @@ bool POS (string& s) {
     for (int i = 1; i < s.length(); i++) {
         if (!isalpha(s[i])) {
             if (s[i] == '+') { s2 += s.substr(i, 1); }
-            else if (s[i] == ')') { s2 += ')'; s2 += '*'; }
-            else if (s[i] == '(' || s[i] == '\'') { s2 += s.substr(i, 1); }
+            else if (s[i] == '(' && s[i - 1] == ')') { s2 += '('; s2 += '*'; }
+            else if (s[i] == ')' ||s[i] == '(' || s[i] == '\'') { s2 += s.substr(i, 1); }
             else { return 0; }
         }
         else {
@@ -153,7 +148,6 @@ bool POS (string& s) {
     s = s2;
     return 1;
 }
-
 
 bool SOP (string& s) {
 
@@ -181,34 +175,33 @@ bool SOP (string& s) {
     return 1;
 }
 
-
 bool isOperator(char c)
 {
-    if (c == '*')  // return true if the char is an operator  
+    if ( c == '*')  // return true if the char is an operator  
+        return true; 
+    else if ( c == '+') 
         return true;
-    else if (c == '+')
-        return true;
-    else if (c == '\'')
-        return true;
+    else if ( c == '\'')
+        return true; 
     else
-        return false;
+        return false; 
 }
 bool evaluatePrefix(string exprsn)
 {
     stack<bool> PrefixCalc;
-
+ 
     for (int i = exprsn.size() - 1; i >= 0; i--) {
-
+ 
         if (!isOperator(exprsn[i])) {
-            if (exprsn[i + 1] == '\'')
+            if (exprsn[i+1]== '\'')
                 continue;
             PrefixCalc.push(exprsn[i] - '0'); // push the value of zero or 1 not the char value
         }
-        else if (exprsn[i] == '\'') {
-            PrefixCalc.push(1 - (exprsn[i - 1] - '0')); // recieve the next char inverted 
+        else if (exprsn[i]== '\''){  
+            PrefixCalc.push(1-(exprsn[i-1] - '0')); // recieve the next char inverted 
         }
         else {
-
+ 
             // Operator encountered
             // Pop two elements from Stack
             bool o1 = PrefixCalc.top();
@@ -225,12 +218,12 @@ bool evaluatePrefix(string exprsn)
             case '*':
                 PrefixCalc.push(o1 * o2);
                 break;
-            default:
+            default: 
                 cout << "Operator not identified";
             }
         }
     }
-
+ 
     return PrefixCalc.top();
 }
 
@@ -240,55 +233,55 @@ void decToBinary(int n, int numOfVar,  vector<bool> &arr)
     // array to store binary number 
     vector<int> binaryNum(numOfVar); 
     // counter for binary array 
-    int i = 0;
-    while (i < numOfVar) {
+    int i = 0; 
+    while (i < numOfVar) { 
         // storing remainder in binary array and the rest with 0
-        if (n <= 0) {
+        if ( n <= 0) {
             binaryNum[i] = 0;
             i++;
             continue;
         }
         else {
-            binaryNum[i] = n % 2;
-            n = n / 2;
+            binaryNum[i] = n % 2; 
+            n = n / 2; 
             i++;
         }
-    }
+    } 
     // return the new array inversed
-    for (int j = i - 1; j >= 0; j--)
-        arr[numOfVar - 1 - j] = binaryNum[j];
-}
+    for (int j = i - 1; j >= 0; j--) 
+            arr[numOfVar-1-j] = binaryNum[j]; 
+} 
 
-string decToBinaryString(int n, int numOfVar)
-{
+string decToBinaryString(int n, int numOfVar) 
+{ 
     // array to store binary number 
     vector<int> binaryNum(numOfVar); 
     vector<int> arr(numOfVar);
     string output = "";
     // counter for binary array 
-    int i = 0;
-    while (i < numOfVar) {
+    int i = 0; 
+    while (i < numOfVar) { 
         // storing remainder in binary array and the rest with 0
-        if (n <= 0) {
+        if ( n <= 0) {
             binaryNum[i] = 0;
             i++;
             continue;
         }
         else {
-            binaryNum[i] = n % 2;
-            n = n / 2;
+            binaryNum[i] = n % 2; 
+            n = n / 2; 
             i++;
         }
-    }
+    } 
     // return the new array inversed
-    for (int j = i - 1; j >= 0; j--)
-        arr[numOfVar - 1 - j] = binaryNum[j];
+    for (int j = i - 1; j >= 0; j--) 
+        arr[numOfVar-1-j] = binaryNum[j]; 
     for (int i = 0; i < numOfVar; i++)
         output += to_string(arr[i]);
-    return output;
-}
+    return output; 
+} 
 
-int binToDec(string s) {
+int binToDec (string s) {
     int decimalValue = 0;
     int powerOfTwo = 1; // Initialize with 2^0
 
@@ -308,41 +301,41 @@ int binToDec(string s) {
 
 void mapVars(int numOfVars, string exp) {  // func that maps every char to a number so we can use it in evaluate a prefix exp 
     int j = 0;
-    for (int i = 0; i < exp.length(); i++) {
+    for (int i =0; i < exp.length(); i++) {
         if (exp[i] == '+' || exp[i] == '*' || exp[i] == '\'') {
-            map1[exp[i]] = 99;
-        }
-        else {
-            if (map1.find(exp[i]) == map1.end()) { // map and increment only if not mapped before
-                map1[exp[i]] = j;
-                j++;
+                map1[exp[i]] = 99;
             }
+        else {
+                if (map1.find(exp[i]) == map1.end()) { // map and increment only if not mapped before
+                        map1[exp[i]] = j; 
+                        j++;
+                        } 
         }
     }
 }
 
 string printKey(map<char, int>& Map,
-    int K)
+              int K)
 {
-
+ 
     // If a is true, then we have
     // not key-value mapped to K
     bool a = true;
     string c;
-
+ 
     // Traverse the map
     for (auto& it : Map) {
-
+ 
         // If mapped value is K,
         // then print the key value
         if (it.second == K) {
-            c = it.first;
+            c = it.first; 
             a = false;
-            //            cout<< it.first;
-            //            a = false;
+//            cout<< it.first;
+//            a = false;
         }
     }
-
+ 
     // If there is not key mapped with K,
     // then print -1
     if (a) {
@@ -354,63 +347,62 @@ string printKey(map<char, int>& Map,
 
 string ReplaceAll(string str, const string& from, const string& to) {
     size_t start_pos = 0;
-    while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
+    while((start_pos = str.find(from, start_pos)) != std::string::npos) {
         str.replace(start_pos, from.length(), to);
-
         start_pos += to.length(); 
     }
     return str;
 }
 
-bool isAdjacent(string a, string b)
+bool isAdjacent(string a,string b)
 {
-    int flag = 0;
-    for (int i = 0; i < a.length(); i++)
-    {
-        if (a[i] != b[i])
-            flag++;
-    }
-    if (flag == 1)
-        return true;
-    else
-        return false;
+   int flag=0;
+   for(int i=0;i<a.length();i++)
+   {
+       if(a[i]!=b[i])
+        flag++;
+   }
+   if (flag == 1) 
+    return true; 
+   else 
+    return false;
 }
 
-string repDontcare(string a, string b)
+string repDontcare(string a,string b)
 {
-    string temp = "";
-    for (int i = 0; i < a.length(); i++)
-        if (a[i] != b[i])
+   string temp="";
+   for(int i=0;i<a.length();i++)
+        if(a[i]!=b[i])
             temp += "-";
         else
             temp += a[i];
 
-    return temp;
+   return temp;
 }
 
-int countNum1(string x) {
+int countNum1 (string x) {
     int counter = 0;
-    for (int i = 0; i < x.length(); i++)
-        if (x[i] == '1')
+    for (int i = 0; i< x.length(); i++) 
+        if (x[i]== '1')
             counter++;
     return counter;
 }
 
 
-vector <string> vsort(vector<string> vec) {
+vector <string> vsort (vector<string> vec) {
     for (int i = 0; i < vec.size() - 1; i++) {
         for (int j = 0; j < vec.size() - i - 1; j++)
-            if (countNum1(vec[j]) > countNum1(vec[j + 1])) {
-                string temp = vec[j];
-                vec[j] = vec[j + 1];
-                vec[j + 1] = temp;
+            if (countNum1(vec[j]) >countNum1(vec[j+1])) {
+                string temp = vec[j]; 
+                vec[j] = vec[j+1]; 
+                vec[j+1] = temp;
             }
     }
     return vec;
 }
 
-void printv(vector<string> vec) {
-    for (int i = 0; i < vec.size(); i++) {
+void printv (vector<string> vec) {
+    for (int i =0; i < vec.size(); i++) {
         cout << vec[i] << endl;
     }
 }
@@ -418,7 +410,7 @@ void printv(vector<string> vec) {
 
 map<int, vector<string>> groupMintermsByOnes(const vector<string>& minterms) { // group Minterms by ones 
     map<int, vector<string>> mintermGroups;
-    for (const string& minterm : minterms)
+    for (const string& minterm : minterms) 
         mintermGroups[countNum1(minterm)].push_back(minterm);
     return mintermGroups;
 }
@@ -433,9 +425,9 @@ void printMintermGroups(const map<int, vector<string>>& mintermGroups) {
     }
 }
 bool alreadyExists(vector<string> v, string s) {
-    return find(v.begin(), v.end(), s) != v.end();
+    return find(v.begin(), v.end(),s)!=v.end();
 }
-void mark(string s, map<string, bool>& markedMap) {
+void mark(string s, map<string, bool>& markedMap) { 
     // If a is true, then we have
     // not key-value mapped to K
     // Traverse the map
@@ -446,7 +438,7 @@ void mark(string s, map<string, bool>& markedMap) {
     }
 }
 
-void reduce(map<int, vector<string>>& mintermGroups, map<string, bool>& markedMap, map<string, string>& pi) {
+void reduce(map<int, vector<string>>& mintermGroups, map<string, bool>& markedMap, map<string, string>& pi ) {
     // Base case: If there is only one group, no further reduction is possible
     if (mintermGroups.empty())
         return;
@@ -457,7 +449,7 @@ void reduce(map<int, vector<string>>& mintermGroups, map<string, bool>& markedMa
             }
     string s1 = ""; 
     string s2 = "";
-
+    
     map<int, vector<string>> nextGroup;
     vector<string> vtemp;
 
@@ -469,20 +461,20 @@ void reduce(map<int, vector<string>>& mintermGroups, map<string, bool>& markedMa
             for (const string& minterm2 : group2) {
                 if (isAdjacent(minterm1, minterm2)) {
                     for (auto it = markedMap.begin(); it != markedMap.end(); it++) { // mark the minterms 
-                        if (it->first == minterm1)
-                            it->second = 1;
+                        if (it->first == minterm1) 
+                            it->second = 1; 
                         if (it->first == minterm2)
                             it->second = 1;
                     }
-                    if (!alreadyExists(vtemp, repDontcare(minterm1, minterm2))) {
+                    if (!alreadyExists(vtemp,repDontcare(minterm1, minterm2))) {
                         vtemp.push_back(repDontcare(minterm1, minterm2));
-                        for (auto it = pi.begin(); it != pi.end(); it++) {
-                            if (it->first == minterm1)
-                                s1 = it->second;
-                            if (it->first == minterm2)
-                                s2 = it->second;
+                        for (auto it = pi.begin(); it != pi.end(); it++){
+                            if (it -> first == minterm1)
+                                s1 = it -> second;
+                            if (it ->first == minterm2) 
+                                s2 = it -> second;  
                         }
-                        pi.insert({ repDontcare(minterm1, minterm2), s1 + "-" + s2 });
+                            pi.insert({repDontcare(minterm1, minterm2), s1 + "-" + s2});
                     }
                 }
             }
@@ -551,29 +543,27 @@ map<string, vector<string>> EPI(vector<string> minterms, map<string, bool> marke
     return EPI;
 
 }
-vector<string> NotfoundMT(map<string, vector<string>> EPI, vector<string> minterms)
-{
+vector<string> NotfoundMT(const map<string, vector<string>>& EPI, const vector<string>& minterms) {
     vector<string> NotfoundMT;
+    set<string> coveredMinterms;
 
-    for (int j = 0; j < minterms.size(); j++)
-    {
-        bool flag = true;
-        string tempmin = to_string(binToDec(minterms[j]));
-        for (auto it = EPI.begin(); it != EPI.end(); it++)
-        {
-            vector<string> PI = it->second;
-            for (int i = 0; i < PI.size(); i++)
-                if (PI[i] == tempmin)
-                {
-                    flag = false;
-                }
-
-        }
-        if (flag)
-            NotfoundMT.push_back(tempmin);
+    // Populate the set with minterms covered by essential PIs
+    for (const auto& ep : EPI) {
+        const vector<string>& covered = ep.second;
+        coveredMinterms.insert(covered.begin(), covered.end());
     }
+
+    // Find minterms that are not covered by essential PIs
+    for (const string& minterm : minterms) {
+        if (coveredMinterms.find(minterm) != coveredMinterms.end()) {
+            NotfoundMT.push_back(minterm);
+        }
+    }
+
     return NotfoundMT;
 }
+
+
 vector<string> srtingtominterms(string s1)
 {
     vector<string> minterms;
@@ -588,12 +578,12 @@ vector<string> srtingtominterms(string s1)
         {
             s2 += s1[i];
             minterms.push_back(s2);
-            s2 = "";
+             s2 = "";
         }
         else
         {
             minterms.push_back(s2);
-            s2 = "";
+             s2 = "";
         }
 
     }
@@ -634,9 +624,9 @@ vector<string> miniexpress(vector<string> NotfoundMT, map<string, bool> markedMa
     {
         PITbTemp.push_back(x.first);
     }
-    for (int j = 0; j < size(PITbTemp); j++)
+    for (int j = 0; j < PITbTemp.size(); j++)
     {
-        for (int l = j + 1; l < size(PITbTemp) - 1; l++)
+        for (int l = j + 1; l < PITbTemp.size() - 1; l++)
         {
             vector<string>first = PITb[PITbTemp[j]];
             vector<string>second = PITb[PITbTemp[l]];
@@ -650,16 +640,16 @@ vector<string> miniexpress(vector<string> NotfoundMT, map<string, bool> markedMa
         }
     }
     map<string, vector<string>> columns;
-    for (int n = 0; n < size(NotfoundMT); n++)
+    for (int n = 0; n < NotfoundMT.size(); n++)
     {
         columns.insert({ NotfoundMT[n], vector<string>() });
-        for (int j = 0; j < size(PITbTemp); j++)
+        for (int j = 0; j < PITbTemp.size(); j++)
             if (alreadyExists(PITb[PITbTemp[j]], NotfoundMT[n]))
                 columns[NotfoundMT[n]].push_back(PITbTemp[j]);
     }
-    for (int r = 0; r < size(NotfoundMT); r++)
+    for (int r = 0; r < NotfoundMT.size(); r++)
     {
-        for (int s = r + 1; s < size(NotfoundMT) - 1; s++)
+        for (int s = r + 1; s < NotfoundMT.size() - 1; s++)
         {
             vector<string>first = columns[NotfoundMT[r]];
             vector<string>second = columns[NotfoundMT[s]];
@@ -672,14 +662,14 @@ vector<string> miniexpress(vector<string> NotfoundMT, map<string, bool> markedMa
 
         }
     }
-    for (int k = 0; k < size(dominatedRow); k++)
+    for (int k = 0; k < dominatedRow.size(); k++)
     {
         PITb.erase(dominatedRow[k]);
 
     }
-    for (int d = 0; d < size(PITbTemp); d++)
+    for (int d = 0; d < PITbTemp.size(); d++)
     {
-        for (int f = 0; f < size(dominatingCol); f++)
+        for (int f = 0; f < dominatingCol.size(); f++)
         {
             if (find(PITb[PITbTemp[d]].begin(), PITb[PITbTemp[d]].end(), dominatingCol[f]) != PITb[PITbTemp[d]].end())
                 PITb[PITbTemp[d]].erase(find(PITb[PITbTemp[d]].begin(), PITb[PITbTemp[d]].end(), dominatingCol[f]));
@@ -695,7 +685,7 @@ vector<string> miniexpress(vector<string> NotfoundMT, map<string, bool> markedMa
         }
     );
     map<string, bool> included;
-    for (int a = 0; a < size(minterms); a++)
+    for (int a = 0; a < minterms.size(); a++)
     {
         included.insert({ minterms[a], false });
     }
@@ -705,10 +695,10 @@ vector<string> miniexpress(vector<string> NotfoundMT, map<string, bool> markedMa
         sortedvector.push_back(x.first);
     }
     vector<string> PIsolution;
-    for (int c = 0; c < size(sortedvector); c++)
+    for (int c = 0; c < sortedvector.size(); c++)
     {
         bool flag = false;
-        for (int d = 0; d < size(PITb[sortedvector[c]]); d++)
+        for (int d = 0; d < PITb[sortedvector[c]].size(); d++)
         {
             if (!included[PITb[sortedvector[c]][d]])
             {
@@ -720,7 +710,7 @@ vector<string> miniexpress(vector<string> NotfoundMT, map<string, bool> markedMa
             PIsolution.push_back(sortedvector[c]);
 
     }
-    for (int t = 0; t < size(EPITemp); t++)
+    for (int t = 0; t < EPITemp.size(); t++)
     {
         PIsolution.push_back(EPITemp[t]);
     }
@@ -728,112 +718,200 @@ vector<string> miniexpress(vector<string> NotfoundMT, map<string, bool> markedMa
 
 }
 
-int main() {
 
-    string s1;
-    set<char> charSet;
-    cout << "Enter Expression: " << endl;
-    getline(cin, s1);
-    RemoveSpaces(s1);
-    string prefix = "";
+#include <fstream>
 
-    if (SOP(s1) || POS(s1)) {
-        prefix = infixToPrefix(s1);
-        cout << prefix << endl;
-    }
-    for (int i = 0; i < prefix.length(); i++) {
-        if (!isOperator(prefix[i]))
-            charSet.insert(prefix[i]);
+bool isNegated(int index, const string& str)
+{
+    if (index + 1 == str.size())
+    {
+        return false;
     }
 
+    return str[index + 1] == '\'';
+}
 
-    int numOfVar = charSet.size(); // number of variables 
-    map<string, bool> markedMap;
-    map<string, string> pi;
-    // above this line is all the checkers and the endproduct of them is a string in a prefix form  
-    string prefixTest = prefix; // there's a problem in bar and a problem in displaying sop the plus in the end
-    string tempPrefix = prefixTest;
-    mapVars(numOfVar, prefixTest); // map vars to their places in the tt 
-    vector<bool> arrOfBinary(numOfVar);
-    vector<vector<bool>> tt; // now we make a vector of vectors to put in the truth table 
-    vector<string> minterms;
-    // Inserting elements into vector 
+string create_assign(vector<string> sop)
+{
+    string ret = "<head>  <script src = \"https://cdnjs.cloudflare.com/ajax/libs/wavedrom/3.1.0/skins/default.js\" type = \"text/javascript\" > </script>\n\
+        <script src = \"https://cdnjs.cloudflare.com/ajax/libs/wavedrom/3.1.0/wavedrom.min.js\" type = \"text/javascript\"></script>\n\
+        <body onload = \"WaveDrom.ProcessAll()\">\n\
+        <script type = \"WaveDrom\"> { assign: [[\"out\",";
 
-    for (int i = 0; i < pow(2, numOfVar); i++) {
-        vector<bool> v1;
-        for (int j = 0; j < numOfVar + 1; j++) {
-            decToBinary(i, numOfVar, arrOfBinary);
-            v1.push_back(arrOfBinary[j]);
-        }
-        for (int i = 0; i < prefixTest.length(); i++) {
-            if (map1[prefixTest[i]] != 99)
-                tempPrefix[i] = '0' + v1[map1[prefixTest[i]]];
-        }
-        //  cout << tempPrefix << endl;
-        v1[numOfVar] = evaluatePrefix(tempPrefix); // store the Value of my Function in the last bit of my vector 
-        tt.push_back(v1);
-    }
-    // Displaying the 2D vector 
-    for (int i = 0; i < tt.size(); i++) {
-        for (int j = 0; j < tt[i].size(); j++)
-            cout << tt[i][j] << " ";
-        cout << endl;
+    if (sop.size() > 1) {
+        ret += "[\"|\"";
     }
 
-    string sop1 = "";
-    cout << "SOP: ";
-    for (int i = 0; i < pow(2, numOfVar); i++) {
-        if (tt[i][numOfVar] == 1) {
-            for (int j = 0; j < numOfVar; j++) {
-                if (tt[i][j] == 1) {
-                    sop1 += printKey(map1, j);
-                }
-                sop1 += " +";
+    for (auto& product : sop)
+    {
+        ret += ",\n[\"&\", ";
+        for (int i = 0; i < product.size(); ++i)
+        {
+            if (isNegated(i, product))
+            {
+                ret += "[\"~\", \"";
+                ret += product[i];
+                ret += string("\"]");
+                ++i;
+            }
+            else
+            {
+                ret += "\"";
+                ret += product[i];
+                ret += "\"";
+            }
+            if (i + 1 != product.size()) {
+                ret += ", ";
             }
         }
-        for (int i = 0; i < sop1.length() - 2; i++)
+        ret += "]\n";
+        }
+
+            if (sop.size() > 1) {
+                ret += "]";
+            }
+
+            ret += "]]} \n\
+                </script> \n\
+                </body> \n\
+                </head>";
+            return ret;
+}
+
+
+
+int main() {
+    vector<string> testcases = {" abc + a'b'c",
+                                "ab+b'c+ca'+b'a",
+                                " a'b'c'd + a'b'c",
+                                " (a+b)(a'+b)(a+b+c+d)",
+                                " ab +bc+ ac",
+                                " (x+y'+z')(x'+z)",
+                                " (w'+e'+w +w')( w'+e')",
+                                "  l d + l ' d ' r ' + l d r",
+                                " A'B'C'D+ABC'D+ABC'D'+AB'C'D'",
+                                " (x+y'+z')(x'+z)(x+y)(y'+z')",
+                                " xw'z + x'wz + x'w'z' + xz+ w'x + wz"};
+    string s1;
+    for (int i = 0; i < 10 ; i++) {    
+        cout << "--------------" <<endl;
+        cout << "Testcase: "<< i+1 << endl;
+        set<char> charSet;
+        s1 = testcases[i];
+        RemoveSpaces(s1);
+        string prefix = "";
+        bool test = POS(s1);
+        if (SOP(s1) || test) {
+            prefix = infixToPrefix(s1);
+            cout << prefix << endl;
+        }
+        if (test) 
+            for (int i = 0; i < prefix.length(); i++){
+                prefix = ReplaceAll(prefix, string("+*"), string("*+"));
+            }
+            prefix = ReplaceAll(prefix,string("*+"), string("*") );
+        cout <<prefix << endl;
+        for (int i = 0;i < prefix.length(); i++) {
+            if (!isOperator(prefix[i]))
+                charSet.insert(prefix[i]);
+        }
+        
+        int numOfVar = charSet.size(); // number of variables 
+        map<string, bool> markedMap;
+        map<string, string> pi;
+        // above this line is all the checkers and the endproduct of them is a string in a prefix form  
+        string prefixTest = prefix; 
+        string tempPrefix = prefixTest; 
+        mapVars(numOfVar, prefixTest); // map vars to their places in the tt 
+        vector<bool> arrOfBinary(numOfVar);
+        vector<vector<bool>> tt; // now we make a vector of vectors to put in the truth table 
+        vector<string> minterms;
+        // Inserting elements into vector 
+        
+
+        for (int i = 0; i < pow(2, numOfVar); i++) { 
+            vector<bool> v1;   
+            for (int j = 0; j < numOfVar +1; j++) { 
+                decToBinary(i, numOfVar, arrOfBinary);
+                v1.push_back(arrOfBinary[j]); 
+            } 
+            for (int i = 0; i < prefixTest.length(); i++) {
+            if (map1[prefixTest[i]]!= 99) 
+            tempPrefix[i] =  '0'+v1[map1[prefixTest[i]]]; 
+        }
+
+        //  cout << tempPrefix << endl;
+            v1[numOfVar] = evaluatePrefix(tempPrefix); // store the Value of my Function in the last bit of my vector 
+            tt.push_back(v1); 
+        } 
+        // Displaying the 2D vector 
+        for (int i = 0; i < tt.size(); i++) { 
+                for (int j = 0; j < tt[i].size(); j++) {
+                    if (j ==tt[i].size()-2)
+                        cout << tt[i][j] << " |";
+                    else 
+                        cout << tt[i][j] << " ";
+                }
+                cout << endl; 
+        } 
+
+        string sop1 = "";
+        cout << "SOP: "; 
+        for (int i =0; i< pow(2, numOfVar); i++) {
+            if (tt[i][numOfVar] == 1) {
+                for (int j = 0; j < numOfVar ; j++) {
+                    if (tt[i][j] == 1) {
+                    sop1 += printKey (map1, j);
+                    }
+                    else 
+                    sop1 += printKey (map1, j) + "\'";
+                } 
+                    sop1 += " +";
+            }
+        }
+        for (int i=0; i < sop1.length()-2; i++)
             cout << sop1[i];
 
         cout << endl;
         string pos = "";
-        for (int i = 0; i < pow(2, numOfVar); i++) {
-            if (tt[i][numOfVar - 1] == 0) {
+        for (int i =0; i< pow(2, numOfVar); i++) {
+            if (tt[i][numOfVar] == 0) {
                 pos += '(';
-                for (int j = 0; j < numOfVar; j++) {
+                for (int j = 0; j < numOfVar ; j++) {
                     if (tt[i][j] == 1) {
-                        pos += printKey(map1, j) + "\'" + '+';
+                    pos += printKey (map1, j) + "\'"+ '+';
                     }
-                    else
-                        pos += printKey(map1, j) + '+';
-                }
-                pos += ')';
+                    else 
+                    pos += printKey (map1, j) + '+';
+                } 
+                    pos +=')';
             }
         }
-        cout << "POS: " << ReplaceAll(pos, string("+)"), string(")")); // Modify the POS string to remove the extra + 
+        cout <<"POS: "<< ReplaceAll(pos, string("+)"), string(")")); // Modify the POS string to remove the extra + 
         cout << endl << "Minterms:" << endl;
-        for (int i = 0; i < pow(2, numOfVar); i++) {
-            if (tt[i][numOfVar - 1] == 1) {
-                minterms.push_back(decToBinaryString(i, numOfVar));
+        for (int i =0; i< pow(2, numOfVar); i++) {
+            if (tt[i][numOfVar] == 1) {
+                minterms.push_back(decToBinaryString(i,numOfVar));
             }
         }
-        for (int i = 0; i < minterms.size(); i++) {
+        for (int i = 0; i < minterms.size(); i++){
             cout << minterms[i] << endl;
         }
 
-        /*vector<string> sortedMinterms;
+        /*vector<string> sortedMinterms; 
         sortedMinterms = vsort(minterms);
         cout << "Sorted Minterms: " << endl;
         printv(sortedMinterms); */
 
 
 
-        for (int i = 0; i < minterms.size(); i++) {
-            pi.insert({ minterms[i],to_string(binToDec(minterms[i])) });
+        for (int i = 0; i < minterms.size(); i++){
+                pi.insert({minterms[i],to_string(binToDec(minterms[i]))});
         }
         map<int, vector<string>> mintermGroups = groupMintermsByOnes(minterms); // Map from int to vector of strings to map all the binaries to their number of ones 
         reduce(mintermGroups, markedMap, pi);
 
-
+        
         // for (auto it = markedMap.begin(); it != markedMap.end(); it++){
         //             cout << it->first << " " ;
         //             cout << it->second << endl;
@@ -842,12 +920,12 @@ int main() {
         //             cout << it->first << " " ;
         //             cout << it->second << endl;
         // }
-        cout << endl << "PI's are: " << endl;
-        for (auto it = markedMap.begin(); it != markedMap.end(); it++) {
-            if (it->second == 0)
-                for (auto it2 = pi.begin(); it2 != pi.end(); it2++)
-                    if (it->first == it2->first)
-                        cout << it2->second << " (" << it2->first << ")" << endl;
+        cout << endl << "PI's are: " << endl; 
+            for (auto it = markedMap.begin(); it != markedMap.end(); it++){
+                if (it->second == 0) 
+                    for (auto it2 = pi.begin(); it2 != pi.end(); it2++)
+                        if (it -> first == it2 -> first)
+                            cout << it2-> second << " (" << it2 -> first<< ")"<< endl; 
         }
 
 
@@ -860,15 +938,48 @@ int main() {
         vector<string> PI1 = NotfoundMT(EPI1, minterms);
         for (int b = 0; b < PI1.size(); b++)
             cout << PI1[b] << " ";
-        cout << endl;
+
+        string sop3 = "";
         cout << "Minimized expression:" << endl;
         vector<string> miniexpress1 = miniexpress(PI1, markedMap, EPI1, minterms, pi);
-        cout << miniexpress1[0];
-        for (int b = 1; b < miniexpress1.size(); b++)
-            cout << " + " << miniexpress1[b];
+        for (int i =0; i< miniexpress1.size(); i++) {
+                for (int j = 0; j < miniexpress1[i].length() ; j++) {
+                    if (miniexpress1[i][j]=='-')
+                        continue;
+                    else if (miniexpress1[i][j]=='0')
+                        sop3 = sop3 + printKey (map1, j) + '\'';
+                    else 
+                        sop3+= printKey (map1, j);
+                } 
+                    sop3 += " +";
+        }
+
+
+
+        for (int i=0; i < sop3.length()-2; i++)
+            cout << sop3[i];
+        
         cout << endl;
+        map1.clear();
+
+        vector<string>minimized;
+        string stemp = ""; 
+        for (int i = 0; i < sop3.length(); i++){
+            if (sop3[i] != '+')  
+                stemp+=sop3[i];
+            else
+            {
+                minimized.push_back(stemp); 
+                stemp = "";
+            }
+        }
+        fstream myfile;
+        myfile .open("test.html", ios::out);
+        myfile << create_assign({minimized});
+        myfile.close();
 
     }
-    return 0;
+
+       return 0; 
 
 }
