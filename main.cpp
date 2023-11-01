@@ -2,7 +2,6 @@
 #include <cstring>
 #include <cctype>
 #include <stack>
-#include <queue>
 #include <vector> 
 #include <cmath>
 #include <map>
@@ -810,7 +809,6 @@ int main() {
                 prefix = ReplaceAll(prefix, string("+*"), string("*+"));
             }
             prefix = ReplaceAll(prefix,string("*+"), string("*") );
-        cout <<prefix << endl;
         for (int i = 0;i < prefix.length(); i++) {
             if (!isOperator(prefix[i]))
                 charSet.insert(prefix[i]);
